@@ -13,7 +13,7 @@ import json
 import requests
 import urllib.parse
 
-DEFAULT_STATION = 'Zürich,+Haldenegg'
+DEFAULT_STATION = 'Zürich,+Meierhofplatz'
 
 app = Flask(__name__)
 
@@ -67,7 +67,7 @@ def slack_api():
         return 'Station not found'
 
     name, sid = stations[0]['value'], stations[0]['id']
-    data = get_zvv_data(name, sid, 5)
+    data = get_zvv_data(name, sid, 2)
     web_url = '%s/%s' % (request.url_root.strip('/'), name.replace(' ', '+'))
 
     text = render_template('slack.txt',
@@ -94,9 +94,12 @@ def root(station_name=DEFAULT_STATION):
         return render_template('notfound.html'), 404
 
     name, sid = stations[0]['value'], stations[0]['id']
-    data = get_zvv_data(name, sid)
+    data = get_zvv_data(name, sid, 8)
 
-    return render_template('index.html',
+    json_string = json.dumps(data)
+    print(json_string)
+
+    return render_template('display.html',
         station=data['station'],
         conns=data['connections'],
         refresh=request.args.get('refresh', None))
