@@ -1,77 +1,38 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    {% if refresh | int > 0 %}
-      <meta http-equiv="refresh" content="{{ refresh | int }}" >
-    {% endif %}
-    <title>{{ station.name | safe }}</title>
-    <link rel="stylesheet" href="static/icons.css">
-    <link rel="stylesheet" href="static/style.css">
-  </head>
-  <body>
-    <div class="container">
+      {% set next13 = -1 %}
+      {% set next46 = -1 %}
+      {% set next80 = -1 %}
       {% for row in conns %}
-      <div class="conn" style="box-sizing: border-box;">
-        <div class="overview">
-          <div class="bar">
-            <div class="time item with-border">
-              {% if row.mainLocation.countdown | int >= 0 %}
-              In
-              {% endif %}
-              <b>
-              {{ row.mainLocation.countdown | int | abs }}
-              </b>
-              {% if row.mainLocation.countdown | int == 1 %}
-              minute
-              {% else %}
-              minutes
-              {% endif %}
-              {% if row.mainLocation.countdown | int < 0 %}
-              ago
-              {% endif %}
-
-              {% if row.mainLocation.realTime.hasRealTime %}
-                {% if row.mainLocation.realTime.delay | int > 0 %}
-                  (+{{ row.mainLocation.realTime.delay | int }})
-                {% endif %}
-              {% endif %}
-            </div>
-            <!-- <div class="time-abs item with-border">
-              {{ row.mainLocation.time }}
-            </div> -->
-            <div class="product item with-border">
-              <span class="zvv_icon {{ row.product.icon }}"></span>
-              <span class='zvv_line'
-                style="background:#{{ row.product.color.bg }};
-			                 color:#{{ row.product.color.fg }};
-			                 {% if row.product.color.bg | lower == 'ffffff' %}
-			                 border:1px solid #cbcbcb;
-			                 {% endif %}"
-                title="{{ row.product.name }}">
-              {{ row.product.line }}
-              </span>
-            </div>
-            <div class="direction item {% if row.himMessages | length > 0 %}with-border{% endif %}">
-              Direction {{ row.product.direction | safe }}{% if row.attributes_bfr | length > 0 %}, {{ row.attributes_bfr[0].text | safe }}{% endif %}
-            </div>
-            <div class="info item">
-              {% if row.himMessages | length > 0 %}
-              <a class="status">
-	              <i class="icon icon_disturbance"></i>
-              </a>
-              {% endif %}
-            </div>
-            <div class="info-text item">
-              {% if row.himMessages | length > 0 %}
-	              {{ row.himMessages[0].header | safe }}
-              {% endif %}
-            </div>
-            <div style="clear:both;"></div>
-          </div>
-        </div>
-      </div>
+      	{% if row.cancelled == False %}
+		{% if row.product.line == '13' %}
+			{% if 'Albisg' in row.product.direction %}
+				{% set time = row.mainLocation.countdown|int + row.mainLocation.realTime.delay|int %}
+				{% if next13 | int < 0 %}
+					{% set next13 = time %}
+					{% set time13 = time %}
+					{{ time13 }}
+				{% endif %}
+			{% endif %}
+		{% elif row.product.line == '46' %}
+			{% if 'Bahnhofquai' in row.product.direction %}
+				{% set time = row.mainLocation.countdown|int + row.mainLocation.realTime.delay|int %}
+				{% if next46 | int < 0 %}
+					{% set next46 = time %}
+					{% set time46 = time %}
+					{{ time46 }}
+				{% endif %}
+			{% endif %}
+		{% elif row.product.line == '80' %}
+			{% if 'Oerlikon' in row.product.direction %}
+				{% set time = row.mainLocation.countdown|int + row.mainLocation.realTime.delay|int %}
+				{% if next80 | int < 0 %}
+					{% set next80 = time %}
+					{% set time80 = time %}
+					{{ time80 }}
+				{% endif %}
+			{% endif %}
+		{% endif %}
+	{% endif %}
       {% endfor %}
-    </div>
-  </body>
-</html>
+      {{ time13 }}
+      {{ time46 }}
+      {{ time80 }}

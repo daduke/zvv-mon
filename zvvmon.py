@@ -96,9 +96,6 @@ def root(station_name=DEFAULT_STATION):
     name, sid = stations[0]['value'], stations[0]['id']
     data = get_zvv_data(name, sid, 8)
 
-    json_string = json.dumps(data)
-    print(json_string)
-
     return render_template('display.html',
         station=data['station'],
         conns=data['connections'],
@@ -123,4 +120,4 @@ def unescape(arg):
     return html.unescape(arg)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0')
+    app.run(host='0.0.0.0', debug=True)
