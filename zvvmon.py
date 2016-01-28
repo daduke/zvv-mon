@@ -84,8 +84,8 @@ def slack_api():
                     status=200,
                     mimetype='text/plain')
 
-@app.route('/<station_name>')
-def root(station_name=DEFAULT_STATION):
+@app.route('/pretty/<station_name>')
+def pretty(station_name=DEFAULT_STATION):
     """
     Standard endpoint
     """
@@ -96,10 +96,45 @@ def root(station_name=DEFAULT_STATION):
     name, sid = stations[0]['value'], stations[0]['id']
     data = get_zvv_data(name, sid, 8)
 
+    return render_template('index.html',
+        station=data['station'],
+        conns=data['connections'],
+        sid=sid,
+        refresh=request.args.get('refresh', None))
+
+@app.route('/<station_name>')
+def root(station_name=DEFAULT_STATION):
+    """
+    Standard endpoint
+    """
+#    stations = gets_suggestion(station_name)
+#    if len(stations) == 0:
+#        return render_template('notfound.html'), 404
+
+#    name, sid = stations[0]['value'], stations[0]['id']
+    sid = 'A=1@O=Zürich, Meierhofplatz@X=8499372@Y=47402007@U=85@L=008576240@B=1@p=1453807933@'
+    data = get_zvv_data('Zürich, Meierhofplatz', sid, 8)
+
+    hour = int(datetime.now().strftime('%H'))
+    if 0 <= hour <= 5:
+      rf = 500
+    elif 6 <= hour <= 7:
+      rf = 20
+    elif 8 <= hour <= 22:
+      rf = 60
+    else:
+      rf = 500
+
+    with open('/var/tmp/outsideTemp', 'r') as myfile:
+      outsidetemp=myfile.read()
+
     return render_template('display.html',
         station=data['station'],
         conns=data['connections'],
-        refresh=request.args.get('refresh', None))
+        temp=outsidetemp,
+#        refresh=request.args.get('refresh', NULL)
+        refresh=rf
+    )
 
 @app.route('/')
 def root_noarg():
@@ -115,9 +150,16 @@ def send_js(path):
     """
     return send_from_directory('static', path)
 
+@app.route('/pretty/static/<path:path>')
+def send_prettyjs(path):
+    """
+    Serves static files (CSS, Fonts)
+    """
+    return send_from_directory('static', path)
+
 @app.template_filter('unescape')
 def unescape(arg):
     return html.unescape(arg)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True)
+    app.run(host='192.168.0.1')

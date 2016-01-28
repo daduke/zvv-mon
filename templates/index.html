@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="static/style.css">
   </head>
   <body>
-    <h1>{{ station.name | safe }}</h1>
+    <h1>{{ station.name|safe }}</h1>
     <div class="container">
       {% for row in conns %}
       <div class="conn" style="box-sizing: border-box;">

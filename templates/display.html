@@ -1,6 +1,15 @@
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    {% if refresh | int > 0 %}
+<!--      <meta http-equiv="refresh" content="{{ refresh | int }}" > -->
+    {% endif %}
+  </head>
       {% set next13 = -1 %}
       {% set next46 = -1 %}
       {% set next80 = -1 %}
+      {% set glob={} %}
+      {% set _ = glob.update({'ok':0}) %}
       {% for row in conns %}
       	{% if row.cancelled == False %}
 		{% if row.product.line == '13' %}
@@ -8,8 +17,7 @@
 				{% set time = row.mainLocation.countdown|int + row.mainLocation.realTime.delay|int %}
 				{% if next13 | int < 0 %}
 					{% set next13 = time %}
-					{% set time13 = time %}
-					{{ time13 }}
+					{% set _ = glob.update({'next13':time}) %}
 				{% endif %}
 			{% endif %}
 		{% elif row.product.line == '46' %}
@@ -17,8 +25,7 @@
 				{% set time = row.mainLocation.countdown|int + row.mainLocation.realTime.delay|int %}
 				{% if next46 | int < 0 %}
 					{% set next46 = time %}
-					{% set time46 = time %}
-					{{ time46 }}
+					{% set _ = glob.update({'next46':time}) %}
 				{% endif %}
 			{% endif %}
 		{% elif row.product.line == '80' %}
@@ -26,13 +33,14 @@
 				{% set time = row.mainLocation.countdown|int + row.mainLocation.realTime.delay|int %}
 				{% if next80 | int < 0 %}
 					{% set next80 = time %}
-					{% set time80 = time %}
-					{{ time80 }}
+					{% set _ = glob.update({'next80':time}) %}
+					{% set _ = glob.update({'ok':1}) %}
 				{% endif %}
 			{% endif %}
 		{% endif %}
 	{% endif %}
       {% endfor %}
-      {{ time13 }}
-      {{ time46 }}
-      {{ time80 }}
+  <body>
+{{'*'+glob.ok|string+';'+temp|string+';'+glob.next13|string+';'+glob.next46|string+';'+glob.next80|string+';'+refresh|string+'#'}}
+  </body>
+  </html>
